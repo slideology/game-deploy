@@ -1,0 +1,34 @@
+{
+  "cloudflare": {
+    "accountId": "你的账户ID",
+    "bucketName": "game-assets",
+    "domain": "你的域名",
+    "cacheRules": [
+      {
+        "url": "/*",
+        "cacheLevel": "Cache Everything",
+        "edgeTTL": 2592000,
+        "browserTTL": 14400
+      }
+    ]
+  },
+  "game": {
+    "name": "Squidki",
+    "description": "Squidki游戏部署",
+    "version": "1.0.0",
+    "files": [
+      {
+        "source": "index.html",
+        "destination": "index.html",
+        "contentType": "text/html"
+      }
+    ]
+  },
+  "optimization": {
+    "minify": true,
+    "compress": true,
+    "http3": true,
+    "earlyHints": true,
+    "zeroRTT": true
+  }
+}

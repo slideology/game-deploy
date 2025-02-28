@@ -1,0 +1,19 @@
+name = "game-site"
+type = "webpack"
+account_id = "你的账户ID"
+workers_dev = true
+compatibility_date = "2023-09-01"
+
+[site]
+bucket = "../public"  # 这里可以是本地目录
+
+[env.production]
+# 绑定R2存储桶
+[[env.production.r2_buckets]]
+binding = "BUCKET"
+bucket_name = "game-assets"
+
+# 自定义域名配置
+[env.production.route]
+pattern = "game.sprunkr.online/*"
+zone_id = "你的域名区域ID"
