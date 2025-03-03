@@ -49,7 +49,11 @@ export default {
         const gameFile = await env.BUCKET.get("sprunki-squidki.html");
         if (gameFile !== null) {
           console.log("找到sprunki-squidki.html文件，返回内容");
-          return new Response(gameFile.body, { 
+          
+          // 处理HTML内容，添加iframe检测代码
+          const modifiedContent = await this.addExternalLinkIfInIframe(gameFile.body);
+          
+          return new Response(modifiedContent, { 
             headers: {
               "Content-Type": "text/html;charset=UTF-8"
             }
@@ -68,7 +72,11 @@ export default {
         const gameFile = await env.BUCKET.get("sprunki-retake-new-human.html");
         if (gameFile !== null) {
           console.log("找到sprunki-retake-new-human.html文件，返回内容");
-          return new Response(gameFile.body, { 
+          
+          // 处理HTML内容，添加iframe检测代码
+          const modifiedContent = await this.addExternalLinkIfInIframe(gameFile.body);
+          
+          return new Response(modifiedContent, { 
             headers: {
               "Content-Type": "text/html;charset=UTF-8"
             }
@@ -146,12 +154,22 @@ export default {
       // 确定内容类型
       const contentType = this.getContentType(objectPath);
       
-      // 返回文件内容
-      return new Response(object.body, {
-        headers: {
-          "Content-Type": contentType
-        }
-      });
+      // 如果是HTML文件，添加iframe检测代码
+      if (contentType === 'text/html;charset=UTF-8') {
+        const htmlContent = await this.addExternalLinkIfInIframe(object.body);
+        return new Response(htmlContent, {
+          headers: {
+            "Content-Type": contentType
+          }
+        });
+      } else {
+        // 返回文件内容
+        return new Response(object.body, {
+          headers: {
+            "Content-Type": contentType
+          }
+        });
+      }
     } catch (error) {
       console.error(`处理请求时出错: ${error.message}`);
       return new Response(`服务器错误: ${error.message}`, { 
@@ -189,5 +207,57 @@ export default {
     };
     
     return contentTypes[extension] || 'application/octet-stream';
+  },
+  
+  // 添加外部链接检测代码到HTML内容
+  async addExternalLinkIfInIframe(htmlContent) {
+    // 转换为文本
+    const text = await new Response(htmlContent).text();
+    
+    // 创建iframe检测和添加外链的JavaScript代码
+    const scriptToInject = `
+    <script>
+      // 当页面加载完成后执行
+      document.addEventListener('DOMContentLoaded', function() {
+        // 检测是否在iframe中运行
+        if (window.self !== window.top) {
+          // 创建外链元素
+          var linkElement = document.createElement('a');
+          linkElement.href = 'https://sprunkr.online/';
+          linkElement.textContent = '访问Sprunkr官方网站';
+          linkElement.target = '_blank';
+          
+          // 设置样式
+          linkElement.style.position = 'fixed';
+          linkElement.style.bottom = '10px';
+          linkElement.style.right = '10px';
+          linkElement.style.padding = '5px 10px';
+          linkElement.style.backgroundColor = '#007bff';
+          linkElement.style.color = 'white';
+          linkElement.style.textDecoration = 'none';
+          linkElement.style.borderRadius = '5px';
+          linkElement.style.fontFamily = 'Arial, sans-serif';
+          linkElement.style.fontSize = '14px';
+          linkElement.style.zIndex = '9999';
+          
+          // 添加到页面
+          document.body.appendChild(linkElement);
+        }
+      });
+    </script>
+    `;
+    
+    // 在</head>标签前插入脚本
+    if (text.includes('</head>')) {
+      return text.replace('</head>', scriptToInject + '</head>');
+    } 
+    // 如果没有</head>标签，在<body>标签后插入
+    else if (text.includes('<body>')) {
+      return text.replace('<body>', '<body>' + scriptToInject);
+    } 
+    // 如果都没有，在开头插入
+    else {
+      return scriptToInject + text;
+    }
   }
 };
