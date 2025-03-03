@@ -34,9 +34,14 @@ jobs:
       
       - name: Publish to Cloudflare
         env:
+          # 确保环境变量名称与 Cloudflare 的要求一致
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # 同时设置两种可能的变量名，以确保兼容性
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           echo "Using Cloudflare Account ID: $CLOUDFLARE_ACCOUNT_ID"
           echo "API Token is set: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}"
+          # 显示环境变量（不显示实际值，只显示是否设置）
+          env | grep -i cloudflare | cut -d= -f1
+          # 使用 wrangler 部署
           npx wrangler publish --config wrangler.toml
