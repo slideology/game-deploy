@@ -2,7 +2,8 @@ name = "game-deploy"
 main = "deploy/worker.js"
 compatibility_date = "2023-12-01"
 
-account_id = "cc5b60b9ed799f6f33559a1bb0068643"
+# 账户ID将由环境变量提供
+# account_id = "cc5b60b9ed799f6f33559a1bb0068643"
 
 [[r2_buckets]]
 binding = 'BUCKET'
