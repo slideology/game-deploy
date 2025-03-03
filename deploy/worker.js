@@ -224,7 +224,7 @@ export default {
           // 创建外链元素
           var linkElement = document.createElement('a');
           linkElement.href = 'https://sprunkr.online/';
-          linkElement.textContent = '访问Sprunkr官方网站';
+          linkElement.textContent = 'Sprunkr.Online';
           linkElement.target = '_blank';
           
           // 设置样式
