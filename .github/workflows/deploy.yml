@@ -1,12 +1,10 @@
 name: Deploy Worker
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
-    paths:
-      - 'deploy/worker.js'
-      - 'wrangler.toml'
 
 jobs:
   deploy:
@@ -15,11 +13,24 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      # 使用 Cloudflare 官方 GitHub Action
-      - name: Deploy to Cloudflare Workers
-        uses: cloudflare/wrangler-action@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_KEY }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # 如果你的 wrangler.toml 不在根目录，可以指定路径
-          # configPath: wrangler.toml
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm install wrangler
+      
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "开始部署 Worker..."
+          echo "使用账户 ID: $CLOUDFLARE_ACCOUNT_ID"
+          echo "API 令牌已设置: ${{ secrets.CLOUDFLARE_API_KEY != '' }}"
+          
+          echo "wrangler.toml 内容:"
+          cat wrangler.toml
+          
+          npx wrangler deploy
