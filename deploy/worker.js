@@ -2,6 +2,7 @@
  * Sprunki-Squidki 游戏 Worker
  * 这个Worker从R2存储桶提供游戏文件，支持不同的路径访问
  * 已配置GitHub Actions自动部署
+ * 触发自动部署 - 2025-03-03
  */
 
 export default {
