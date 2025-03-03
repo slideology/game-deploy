@@ -14,14 +14,29 @@ jobs:
     name: Deploy Worker
     steps:
       - uses: actions/checkout@v3
+      
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+      
       - name: Install dependencies
         run: npm install
+        
+      - name: List files for debugging
+        run: |
+          echo "Current directory content:"
+          ls -la
+          echo "Deploy directory content:"
+          ls -la deploy || echo "Deploy directory not found"
+          echo "Wrangler.toml content:"
+          cat wrangler.toml || echo "Wrangler.toml not found"
+      
       - name: Publish to Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "Using Cloudflare Account ID: $CLOUDFLARE_ACCOUNT_ID"
+          echo "API Token is set: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}"
+          npx wrangler publish --config wrangler.toml
