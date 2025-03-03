@@ -24,34 +24,17 @@ jobs:
       - name: Install dependencies
         run: npm install wrangler
       
-      - name: Check available secrets
-        run: |
-          echo "检查可用的 secrets..."
-          echo "CLOUDFLARE_API_KEY 是否设置: ${{ secrets.CLOUDFLARE_API_KEY != '' }}"
-          echo "CLOUDFLARE_API_TOKEN 是否设置: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}"
-          echo "CLOUDFLARE_ACCOUNT_ID 是否设置: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}"
-      
       - name: Deploy Worker
         env:
-          # 尝试两种可能的 secret 名称
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLARE_API_KEY }}
+          # 使用正确的 Secret 名称
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           echo "开始部署 Worker..."
           echo "使用账户 ID: $CLOUDFLARE_ACCOUNT_ID"
           echo "API 令牌是否设置: ${{ env.CLOUDFLARE_API_TOKEN != '' }}"
           
-          # 检查环境变量是否设置
-          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "错误: CLOUDFLARE_API_TOKEN 未设置"
-            exit 1
-          fi
-          
-          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "错误: CLOUDFLARE_ACCOUNT_ID 未设置"
-            exit 1
-          fi
-          
+          # 显示 wrangler.toml 内容
           echo "wrangler.toml 内容:"
           cat wrangler.toml
           
